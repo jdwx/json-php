@@ -15,7 +15,7 @@ use JsonException;
  * provide consistent error handling (via JsonException) and some type
  * safety for the benefit of static analysis.
  */
-final class Json {
+class Json {
 
 
     private static int $uDepth = 512;
