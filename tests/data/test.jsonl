@@ -1,0 +1,4 @@
+{"foo": "bar", "baz": 5}
+{"qux": [1, 2, 3], "quux": null}
+
+{"corge": {"grault": "garply", "waldo": "fred\nplugh"}}

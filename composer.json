@@ -1,0 +1,17 @@
+{
+  "name": "jdwx/json-php",
+  "description": "JSON helper functions for PHP.",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "JDWX\\Json\\": "src/"
+    }
+  },
+  "require": {
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "jetbrains/phpstorm-attributes": "^1.0",
+    "phpunit/phpunit": "^10"
+  }
+}
