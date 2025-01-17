@@ -208,31 +208,33 @@ final class LexerTest extends TestCase {
 
     public function testInvokeForGood() : void {
         $lex = new Lexer();
-        $r = iterator_to_array( $lex( '', true ) );
+        $r = iterator_to_array( $lex( '', true, true ) );
         self::assertSame( [], $r );
-        $r = iterator_to_array( $lex( 'true', true ) );
+        $r = iterator_to_array( $lex( 'true', true, true ) );
         self::assertSame( [ 'true' ], $r );
-        $r = iterator_to_array( $lex( "false\n1", true ) );
+        $r = iterator_to_array( $lex( "false\n1", true, true ) );
         self::assertSame( [ 'false', ' 1' ], $r );
-        $r = iterator_to_array( $lex( "null\n\"foo\"\n[0,1,2,true]", true ) );
+        $r = iterator_to_array( $lex( "null\n\"foo\"\n[0,1,2,true]", true, true ) );
         self::assertSame( [ 'null', ' "foo"', ' [0,1,2,true]' ], $r );
+        $r = iterator_to_array( $lex( "true\nfalse\n123\n456", true, true ) );
+        self::assertSame( [ 'true', ' false', ' 123', ' 456' ], $r );
     }
 
 
     public function testInvokeForIncomplete() : void {
         $lex = new Lexer();
-        $r = iterator_to_array( $lex( 'tru', false ) );
+        $r = iterator_to_array( $lex( 'tru', true, false ) );
         self::assertSame( [ Result::INCOMPLETE ], $r );
-        $r = iterator_to_array( $lex( 'true', false ) );
+        $r = iterator_to_array( $lex( 'true', true, false ) );
         self::assertSame( [ 'true', Result::INCOMPLETE ], $r );
     }
 
 
     public function testInvokeForInvalid() : void {
         $lex = new Lexer();
-        $r = iterator_to_array( $lex( 'tru', true ) );
+        $r = iterator_to_array( $lex( 'tru', true, true ) );
         self::assertSame( [ Result::INVALID ], $r );
-        $r = iterator_to_array( $lex( "true\r\n123\n\"foo", true ) );
+        $r = iterator_to_array( $lex( "true\r\n123\n\"foo", true, true ) );
         self::assertSame( [ 'true', '  123', Result::INVALID ], $r );
     }
 

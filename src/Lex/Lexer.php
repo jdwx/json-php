@@ -50,25 +50,8 @@ class Lexer {
     /**
      * @return \Generator<string|Result>
      */
-    public function __invoke( string $i_st, bool $i_bEndOfInput ) : \Generator {
-        $bFirst = true;
-        while ( true ) {
-            $x = $this->element( $i_st, $bFirst, $i_bEndOfInput );
-            if ( Result::END_OF_INPUT === $x ) {
-                break;
-            }
-            if ( Result::INCOMPLETE === $x && $i_bEndOfInput ) {
-                yield Result::INVALID;
-                break;
-            }
-            if ( ! is_string( $x ) ) {
-                yield $x;
-                break;
-            }
-            $i_st = substr( $i_st, strlen( $x ) );
-            $bFirst = false;
-            yield $x;
-        }
+    public function __invoke( string $i_st, bool $i_bFirst, bool $i_bEndOfInput ) : \Generator {
+        return $this->lex( $i_st, $i_bFirst, $i_bEndOfInput );
     }
 
 
@@ -193,6 +176,30 @@ class Lexer {
 
     public function false( string $i_st ) : string|Result {
         return $this->word( $i_st, 'false' );
+    }
+
+
+    /**
+     * @return \Generator<string|Result>
+     */
+    public function lex( string $i_st, bool $i_bFirst, bool $i_bEndOfInput ) : \Generator {
+        while ( true ) {
+            $x = $this->element( $i_st, $i_bFirst, $i_bEndOfInput );
+            if ( Result::END_OF_INPUT === $x ) {
+                break;
+            }
+            if ( Result::INCOMPLETE === $x && $i_bEndOfInput ) {
+                yield Result::INVALID;
+                break;
+            }
+            if ( ! is_string( $x ) ) {
+                yield $x;
+                break;
+            }
+            $i_st = substr( $i_st, strlen( $x ) );
+            $i_bFirst = false;
+            yield $x;
+        }
     }
 
 
