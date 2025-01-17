@@ -47,6 +47,31 @@ class Lexer {
     public function __construct( private readonly string $stElementDelimiters = "\r\n" ) {}
 
 
+    /**
+     * @return \Generator<string|Result>
+     */
+    public function __invoke( string $i_st, bool $i_bEndOfInput ) : \Generator {
+        $bFirst = true;
+        while ( true ) {
+            $x = $this->element( $i_st, $bFirst, $i_bEndOfInput );
+            if ( Result::END_OF_INPUT === $x ) {
+                break;
+            }
+            if ( Result::INCOMPLETE === $x && $i_bEndOfInput ) {
+                yield Result::INVALID;
+                break;
+            }
+            if ( ! is_string( $x ) ) {
+                yield $x;
+                break;
+            }
+            $i_st = substr( $i_st, strlen( $x ) );
+            $bFirst = false;
+            yield $x;
+        }
+    }
+
+
     public function array( string $i_st, bool $i_bEndOfInput ) : string|Result {
         if ( '' === $i_st ) {
             return Result::INCOMPLETE;
@@ -119,25 +144,35 @@ class Lexer {
      */
     public function element( string $i_st, bool $i_bBeginningOfInput, bool $i_bEndOfInput ) : string|Result {
 
-        # If we are at the beginning of the input, we might see whitespace.
-        # Otherwise, we expect to see a delimiter.
-        if ( $i_bBeginningOfInput ) {
-            $stWhitespace = static::whitespace( $i_st );
-        } else {
+        # We might see leading whitespace.
+        $stWhitespace = static::whitespace( $i_st );
+        $st = substr( $i_st, strlen( $stWhitespace ) );
+
+        # And if there's nothing else, we'll call it early.
+        if ( '' === $st ) {
+            if ( $i_bEndOfInput ) {
+                return Result::END_OF_INPUT;
+            }
+            return Result::INCOMPLETE;
+        }
+
+        # Otherwise, we expect to see a delimiter, and we're going to start
+        # over with $i_st so we get any leading whitespace in the delimiter.
+        if ( ! $i_bBeginningOfInput ) {
             $xDelim = static::delimiter( $i_st );
             if ( ! is_string( $xDelim ) ) {
                 return $xDelim;
             }
             $stWhitespace = $xDelim;
-        }
+            $st = substr( $i_st, strlen( $xDelim ) );
 
-        $st = substr( $i_st, strlen( $stWhitespace ) );
-
-        if ( $st === '' ) {
-            if ( $i_bEndOfInput ) {
-                return Result::END_OF_INPUT;
+            # We'll try again to call it early if there's nothing else.
+            if ( '' === $st ) {
+                if ( $i_bEndOfInput ) {
+                    return Result::END_OF_INPUT;
+                }
+                return Result::INCOMPLETE;
             }
-            return Result::INCOMPLETE;
         }
 
         $x = $this->value( $st, $i_bEndOfInput );
@@ -406,8 +441,10 @@ class Lexer {
 
     /**
      * A marker is a JSON marker character surrounded by any amount
-     * (or no amount) of whitespace.
-     *
+     * (or no amount) of whitespace.  It differs from a delimiter
+     * because one marker appears exactly once, whereas multiple
+     * delimiters can appear multiple times intermixed with
+     * whitespace.
      */
     private function marker( string $i_st, ?string $i_stSpecificMarkers = null ) : string|Result {
         $stWhitespace = $this->whitespace( $i_st );
@@ -585,7 +622,7 @@ class Lexer {
 
     /**
      * @param string $i_st
-     * @return array
+     * @return string The whitespace at the beginning of the string. (Might be empty.)
      */
     private function whitespace( string $i_st ) : string {
 

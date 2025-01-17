@@ -60,9 +60,77 @@ final class LexerTest extends TestCase {
     }
 
 
+    public function testElementForAlternateDelimiter() : void {
+        $lex = new Lexer( '|' );
+        self::assertSame(
+            Result::INCOMPLETE,
+            $lex->element( '', true, false )
+        );
+        self::assertSame(
+            Result::INCOMPLETE,
+            $lex->element( '   ', true, false )
+        );
+        self::assertSame(
+            Result::INCOMPLETE,
+            $lex->element( '   |', false, false )
+        );
+        self::assertSame(
+            Result::INVALID,
+            $lex->element( '   |', true, false )
+        );
+        self::assertSame(
+            Result::INCOMPLETE,
+            $lex->element( '   |   ', false, false )
+        );
+        self::assertSame(
+            Result::INVALID,
+            $lex->element( '   |   ', true, false )
+        );
+        self::assertSame(
+            'true',
+            $lex->element( 'true', true, false )
+        );
+        self::assertSame(
+            Result::EXPECTED_DELIMITER,
+            $lex->element( 'true', false, false )
+        );
+        self::assertSame(
+            Result::END_OF_INPUT,
+            $lex->element( '|', false, true )
+        );
+        self::assertSame(
+            Result::END_OF_INPUT,
+            $lex->element( '   |', false, true )
+        );
+        self::assertSame(
+            Result::END_OF_INPUT,
+            $lex->element( '|   ', false, true )
+        );
+        self::assertSame(
+            Result::END_OF_INPUT,
+            $lex->element( '   |   ', false, true )
+        );
+    }
+
+
     public function testElementForEndOfInput() : void {
         $lex = new Lexer();
-        self::assertSame( Result::END_OF_INPUT, $lex->element( '', true, true ) );
+        self::assertSame(
+            Result::END_OF_INPUT,
+            $lex->element( '', true, true )
+        );
+        self::assertSame(
+            Result::END_OF_INPUT,
+            $lex->element( '  ', true, true )
+        );
+        self::assertSame(
+            Result::END_OF_INPUT,
+            $lex->element( "  \r\n", true, true )
+        );
+        self::assertSame(
+            Result::END_OF_INPUT,
+            $lex->element( "  \n  ", true, true )
+        );
     }
 
 
@@ -135,6 +203,37 @@ final class LexerTest extends TestCase {
         self::assertSame( Result::INVALID, $lex->false( 'falsex' ) );
         self::assertSame( Result::INVALID, $lex->false( 'false!' ) );
         self::assertSame( Result::INVALID, $lex->false( 'true' ) );
+    }
+
+
+    public function testInvokeForGood() : void {
+        $lex = new Lexer();
+        $r = iterator_to_array( $lex( '', true ) );
+        self::assertSame( [], $r );
+        $r = iterator_to_array( $lex( 'true', true ) );
+        self::assertSame( [ 'true' ], $r );
+        $r = iterator_to_array( $lex( "false\n1", true ) );
+        self::assertSame( [ 'false', ' 1' ], $r );
+        $r = iterator_to_array( $lex( "null\n\"foo\"\n[0,1,2,true]", true ) );
+        self::assertSame( [ 'null', ' "foo"', ' [0,1,2,true]' ], $r );
+    }
+
+
+    public function testInvokeForIncomplete() : void {
+        $lex = new Lexer();
+        $r = iterator_to_array( $lex( 'tru', false ) );
+        self::assertSame( [ Result::INCOMPLETE ], $r );
+        $r = iterator_to_array( $lex( 'true', false ) );
+        self::assertSame( [ 'true', Result::INCOMPLETE ], $r );
+    }
+
+
+    public function testInvokeForInvalid() : void {
+        $lex = new Lexer();
+        $r = iterator_to_array( $lex( 'tru', true ) );
+        self::assertSame( [ Result::INVALID ], $r );
+        $r = iterator_to_array( $lex( "true\r\n123\n\"foo", true ) );
+        self::assertSame( [ 'true', '  123', Result::INVALID ], $r );
     }
 
 
