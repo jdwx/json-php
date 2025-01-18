@@ -294,6 +294,7 @@ class JsonTest extends TestCase {
     public function testGetNull() : void {
         $stJson = '{"a":null, "b":5}';
         $r = Json::decode( $stJson );
+        /** @phpstan-ignore-next-line */
         static::assertNull( Json::getNull( $r, 'a' ) );
         static::expectException( JsonException::class );
         Json::getNull( $r, 'b' );

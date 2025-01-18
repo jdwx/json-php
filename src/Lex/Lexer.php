@@ -144,7 +144,7 @@ class Lexer {
         # Otherwise, we expect to see a delimiter, and we're going to start
         # over with $i_st so we get any leading whitespace in the delimiter.
         if ( ! $i_bBeginningOfInput ) {
-            $xDelim = static::delimiter( $i_st );
+            $xDelim = self::delimiter( $i_st );
             if ( ! is_string( $xDelim ) ) {
                 return $xDelim;
             }
@@ -458,7 +458,7 @@ class Lexer {
      */
     private function delimiter( string $i_st ) : string|Result {
         # If you ever wondered what strspn() is for, this is what it's for.
-        $uLen = strspn( $i_st, $this->stElementDelimiters . static::JSON_WHITESPACE );
+        $uLen = strspn( $i_st, $this->stElementDelimiters . self::JSON_WHITESPACE );
         if ( $uLen === 0 ) {
             return Result::EXPECTED_DELIMITER;
         }

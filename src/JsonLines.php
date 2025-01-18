@@ -46,6 +46,7 @@ final class JsonLines {
 
     public static function fromFile( string $i_stFileName, int $i_uOffset = 0,
                                      int    $i_uLimit = PHP_INT_MAX ) : \Generator {
+        /** @noinspection PhpUsageOfSilenceOperatorInspection */
         $stream = @fopen( $i_stFileName, 'r' );
         if ( ! is_resource( $stream ) ) {
             throw new \RuntimeException( "Failed to open file: {$i_stFileName}" );

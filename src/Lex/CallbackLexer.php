@@ -15,7 +15,7 @@ namespace JDWX\Json\Lex;
 class CallbackLexer extends BufferedLexer {
 
 
-    /** @param callback $callback */
+    /** @param callable $callback */
     public function __construct( private      $callback, string $i_stBuffer = '',
                                  Lexer|string $i_xElementDelimiters = "\r\n",
                                  bool         $i_bEndOfInput = false ) {
