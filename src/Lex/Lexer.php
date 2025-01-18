@@ -90,7 +90,7 @@ class Lexer {
                 $stInnerWhitespace = $this->whitespace( $st );
                 $bFirst = false;
             } else {
-                $stInnerWhitespace = $this->marker( $st, ',]' );
+                $stInnerWhitespace = $this->marker( $st, ',]', false );
                 if ( ! is_string( $stInnerWhitespace ) ) {
                     return $stInnerWhitespace;
                 }
@@ -101,6 +101,8 @@ class Lexer {
                     }
                     return $stOut . $stInnerWhitespace;
                 }
+                $stMoreWhitespace = $this->whitespace( substr( $st, strlen( $stInnerWhitespace ) ) );
+                $stInnerWhitespace .= $stMoreWhitespace;
             }
 
             $st = substr( $st, strlen( $stInnerWhitespace ) );
@@ -203,6 +205,33 @@ class Lexer {
     }
 
 
+    /**
+     * A marker is a JSON marker character surrounded by any amount
+     * (or no amount) of whitespace.  It differs from a delimiter
+     * because one marker appears exactly once, whereas multiple
+     * delimiters can appear multiple times intermixed with
+     * whitespace.
+     */
+    public function marker( string $i_st, ?string $i_stSpecificMarkers,
+                            bool   $i_bIncludeWhitespaceAfter ) : string|Result {
+        $stWhitespace = $this->whitespace( $i_st );
+        $st = substr( $i_st, strlen( $stWhitespace ) );
+        if ( '' === $st ) {
+            return Result::INCOMPLETE;
+        }
+        if ( ! str_contains( $i_stSpecificMarkers ?? self::JSON_MARKERS, $st[ 0 ] ) ) {
+            return Result::INVALID;
+        }
+        $stMarker = $st[ 0 ];
+        $stMoreWhitespace = '';
+        if ( $i_bIncludeWhitespaceAfter ) {
+            $stRest = substr( $st, 1 );
+            $stMoreWhitespace = $this->whitespace( $stRest );
+        }
+        return $stWhitespace . $stMarker . $stMoreWhitespace;
+    }
+
+
     public function null( string $i_st ) : string|Result {
         return $this->word( $i_st, 'null' );
     }
@@ -277,7 +306,7 @@ class Lexer {
                 $stInnerWhitespace = $this->whitespace( $st );
                 $bFirst = false;
             } else {
-                $stInnerWhitespace = $this->marker( $st, ',}' );
+                $stInnerWhitespace = $this->marker( $st, ',}', false );
                 if ( ! is_string( $stInnerWhitespace ) ) {
                     return $stInnerWhitespace;
                 }
@@ -288,6 +317,8 @@ class Lexer {
                     }
                     return $stOut . $stInnerWhitespace;
                 }
+                $stMoreWhitespace = $this->whitespace( substr( $st, strlen( $stInnerWhitespace ) ) );
+                $stInnerWhitespace .= $stMoreWhitespace;
             }
 
             $st = substr( $st, strlen( $stInnerWhitespace ) );
@@ -303,7 +334,7 @@ class Lexer {
             $stOut .= $xKey;
             $st = substr( $st, strlen( $xKey ) );
 
-            $xColon = $this->marker( $st, ':' );
+            $xColon = $this->marker( $st, ':', true );
             if ( ! is_string( $xColon ) ) {
                 return $xColon;
             }
@@ -443,29 +474,6 @@ class Lexer {
             return false;
         }
         return ! str_contains( self::JSON_POTENTIALLY_VALID_TRAILERS, $i_st[ 0 ] );
-    }
-
-
-    /**
-     * A marker is a JSON marker character surrounded by any amount
-     * (or no amount) of whitespace.  It differs from a delimiter
-     * because one marker appears exactly once, whereas multiple
-     * delimiters can appear multiple times intermixed with
-     * whitespace.
-     */
-    private function marker( string $i_st, ?string $i_stSpecificMarkers = null ) : string|Result {
-        $stWhitespace = $this->whitespace( $i_st );
-        $st = substr( $i_st, strlen( $stWhitespace ) );
-        if ( '' === $st ) {
-            return Result::INCOMPLETE;
-        }
-        if ( ! str_contains( $i_stSpecificMarkers ?? self::JSON_MARKERS, $st[ 0 ] ) ) {
-            return Result::INVALID;
-        }
-        $stMarker = $st[ 0 ];
-        $stRest = substr( $st, 1 );
-        $stMoreWhitespace = $this->whitespace( $stRest );
-        return $stWhitespace . $stMarker . $stMoreWhitespace;
     }
 
 

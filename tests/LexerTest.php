@@ -177,6 +177,20 @@ final class LexerTest extends TestCase {
     }
 
 
+    public function testElementForJsonLines() : void {
+        $st = trim( file_get_contents( __DIR__ . '/data/test.jsonl' ) );
+        $lex = new Lexer();
+        $stResult = '{"foo": "bar", "baz": 5}';
+        self::assertSame( $stResult, $lex->element( $st, true, true ) );
+        $st = substr( $st, strlen( $stResult ) );
+        $stResult = ' {"qux": [1, 2, 3], "quux": null}';
+        self::assertSame( $stResult, $lex->element( $st, false, true ) );
+        $st = substr( $st, strlen( $stResult ) );
+        $stResult = '  {"corge": {"grault": "garply", "waldo": "fred\nplugh"}}';
+        self::assertSame( $stResult, $lex->element( $st, false, true ) );
+    }
+
+
     public function testFalseForGood() : void {
         $lex = new Lexer();
         self::assertSame( 'false', $lex->false( 'false' ) );
@@ -236,6 +250,24 @@ final class LexerTest extends TestCase {
         self::assertSame( [ Result::INVALID ], $r );
         $r = iterator_to_array( $lex( "true\r\n123\n\"foo", true, true ) );
         self::assertSame( [ 'true', '  123', Result::INVALID ], $r );
+    }
+
+
+    public function testLexForJsonLines() : void {
+        $st = trim( file_get_contents( __DIR__ . '/data/test.jsonl' ) );
+        $lex = new Lexer();
+        $gen = $lex->lex( $st, true, true );
+
+        $stResult = '{"foo": "bar", "baz": 5}';
+        self::assertSame( $stResult, $gen->current() );
+        $gen->next();
+
+        $stResult = ' {"qux": [1, 2, 3], "quux": null}';
+        self::assertSame( $stResult, $gen->current() );
+        $gen->next();
+
+        $stResult = '  {"corge": {"grault": "garply", "waldo": "fred\nplugh"}}';
+        self::assertSame( $stResult, $gen->current() );
     }
 
 

@@ -7,6 +7,10 @@ declare( strict_types = 1 );
 namespace JDWX\Json\Lex;
 
 
+/**
+ * The buffered lexer is a wrapper around a Lexer that handles buffering input and manages trimming
+ * the buffer as JSON elements are consumed.
+ */
 class BufferedLexer {
 
 
