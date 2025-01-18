@@ -1,0 +1,14 @@
+[
+  1,
+  2,
+  null,
+  "foo",
+  [
+    "bar",
+    "baz"
+  ],
+  {
+    "qux": "quux"
+  },
+  true
+]

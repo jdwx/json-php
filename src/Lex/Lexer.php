@@ -397,6 +397,8 @@ class Lexer {
      * The main difference between an element and a value (for our purposes) is
      * that an element is allowed to have leading whitespace. So in most cases,
      * it is preferable to call element().
+     *
+     * @suppress PhanParamSuspiciousOrder
      */
     public function value( string $st, bool $i_bEndOfInput ) : string|Result {
 
@@ -436,6 +438,16 @@ class Lexer {
 
 
     /**
+     * @param string $i_st
+     * @return string The whitespace at the beginning of the string. (Might be empty.)
+     */
+    public function whitespace( string $i_st ) : string {
+        $uLen = strspn( $i_st, self::JSON_WHITESPACE );
+        return substr( $i_st, 0, $uLen );
+    }
+
+
+    /**
      *
      * For our purposes, a delimiter is kind of like special-case whitespace.
      * It can contain any combination of whitespace characters and delimiters,
@@ -468,6 +480,8 @@ class Lexer {
      * 2) Characters that are definitely invalid.
      *
      * This method checks for the latter.
+     *
+     * @suppress PhanParamSuspiciousOrder
      */
     private function invalidTrailer( string $i_st ) : bool {
         if ( '' === $i_st ) {
@@ -632,17 +646,6 @@ class Lexer {
 
         return Result::INCOMPLETE;
 
-    }
-
-
-    /**
-     * @param string $i_st
-     * @return string The whitespace at the beginning of the string. (Might be empty.)
-     */
-    private function whitespace( string $i_st ) : string {
-
-        $uLen = strspn( $i_st, self::JSON_WHITESPACE );
-        return substr( $i_st, 0, $uLen );
     }
 
 

@@ -15,8 +15,9 @@ class StringInput extends AbstractInput {
 
     public function __construct( private readonly string $stData, bool $i_bSkipOuterArray = false,
                                  int                     $i_uBufferSize = self::DEFAULT_BUFFER_SIZE,
-                                 int                     $i_uMaxObjectSize = self::DEFAULT_MAX_OBJECT_SIZE ) {
-        parent::__construct( $i_bSkipOuterArray, $i_uBufferSize, $i_uMaxObjectSize );
+                                 int                     $i_uMaxReadSize = self::DEFAULT_MAX_READ_SIZE,
+                                 string|null             $i_elementDelimiters = null ) {
+        parent::__construct( $i_bSkipOuterArray, $i_uBufferSize, $i_uMaxReadSize, $i_elementDelimiters );
     }
 
 

@@ -11,15 +11,14 @@ use JDWX\Json\Json;
 use JDWX\Json\Lex\Lexer;
 use JDWX\Json\Lex\Result;
 use JsonException;
-use LogicException;
 
 
 abstract class AbstractInput {
 
 
-    public const int DEFAULT_BUFFER_SIZE     = 1_048_576;
+    public const int DEFAULT_BUFFER_SIZE   = 1_048_576;
 
-    public const int DEFAULT_MAX_OBJECT_SIZE = 16 * 1_048_576;
+    public const int DEFAULT_MAX_READ_SIZE = 65_536;
 
     private string $stBuffer = '';
 
@@ -32,10 +31,10 @@ abstract class AbstractInput {
 
     public function __construct( private readonly bool $bSkipOuterArray = false,
                                  private readonly int  $uBufferSize = self::DEFAULT_BUFFER_SIZE,
-                                 private readonly int  $uMaxObjectSize = self::DEFAULT_MAX_OBJECT_SIZE,
+                                 private readonly int  $uMaxReadSize = self::DEFAULT_MAX_READ_SIZE,
                                  string|null           $i_elementDelimiters = null ) {
         if ( $bSkipOuterArray && ! is_null( $i_elementDelimiters ) ) {
-            throw new LogicException( 'Cannot skip outer array and specify element delimiters' );
+            throw new \InvalidArgumentException( 'Cannot skip outer array and specify element delimiters' );
         }
         if ( $bSkipOuterArray ) {
             $i_elementDelimiters = ',';
@@ -51,7 +50,11 @@ abstract class AbstractInput {
 
         # Skip the outer array if requested
         if ( $this->bFirst && $this->bSkipOuterArray && ! $this->bOuterArraySkipped ) {
-            while ( ! str_contains( $this->stBuffer, '[' ) ) {
+            while ( true ) {
+                $x = $this->lexer->marker( $this->stBuffer, '[', false );
+                if ( is_string( $x ) ) {
+                    break;
+                }
                 if ( $this->eof() ) {
                     throw new JsonException( 'No outer JSON array found' );
                 }
@@ -67,17 +70,17 @@ abstract class AbstractInput {
         # Skip the bracket and reset the flag. We are probably done,
         # but we'll let the lexer decide.
         if ( $this->bSkipOuterArray && $this->bOuterArraySkipped ) {
-            $x = $this->lexer->marker( $this->stBuffer, ']' );
+            $x = $this->lexer->marker( $this->stBuffer, ']', true );
             if ( is_string( $x ) ) {
                 $this->stBuffer = substr( $this->stBuffer, strlen( $x ) );
                 $this->bOuterArraySkipped = false;
             }
         }
 
-        # Read the next JSON element
+        # Read JSON elements one at a time until something unusual happens
         while ( Result::INCOMPLETE === ( $x = $this->nextItem() ) ) {
             if ( $this->eof() ) {
-                return Result::END_OF_INPUT;
+                return Result::INCOMPLETE;
             }
             $this->fill();
         }
@@ -98,7 +101,7 @@ abstract class AbstractInput {
                 break;
             }
             if ( $x instanceof Result ) {
-                throw new JsonException( 'Decode error at: ' . substr( $this->stBuffer, 0, 80 ) );
+                throw new JsonException( 'Incomplete decode at end of input: ' . substr( $this->stBuffer, 0, 80 ) );
             }
             yield $x;
         }
@@ -111,10 +114,11 @@ abstract class AbstractInput {
     protected function fill() : void {
         if ( strlen( $this->stBuffer ) >= $this->uBufferSize ) {
             throw new JsonException(
-                'JSON object size exceeds configured limit of ' . number_format( $this->uMaxObjectSize )
+                'JSON object size exceeds buffer size of ' . number_format( $this->uBufferSize )
             );
         }
-        $this->stBuffer .= $this->read( $this->uBufferSize - strlen( $this->stBuffer ) );
+        $uLength = min( $this->uMaxReadSize, $this->uBufferSize - strlen( $this->stBuffer ) );
+        $this->stBuffer .= $this->read( $uLength );
     }
 
 
