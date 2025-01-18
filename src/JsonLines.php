@@ -7,6 +7,10 @@ declare( strict_types = 1 );
 namespace JDWX\Json;
 
 
+use JDWX\Json\Streaming\StreamInput;
+use JDWX\Json\Streaming\StringInput;
+
+
 /**
  * Class JsonLines
  *
@@ -18,21 +22,8 @@ final class JsonLines {
 
 
     public static function decode( string $i_stJsonLines ) : \Generator {
-        # To avoid copies, we'll walk through the string by offsets looking
-        # for newlines. This is a bit more complex than just exploding on
-        # newlines, but it's much more memory-efficient.
-        $uOffset = 0;
-        $uNewOffset = strpos( $i_stJsonLines, "\n", $uOffset );
-        while ( $uNewOffset !== false ) {
-            $stLine = substr( $i_stJsonLines, $uOffset, $uNewOffset - $uOffset );
-            $uOffset = $uNewOffset + 1;
-            $uNewOffset = strpos( $i_stJsonLines, "\n", $uOffset );
-            yield Json::decode( $stLine );
-        }
-        $stLine = substr( $i_stJsonLines, $uOffset );
-        if ( $stLine !== '' ) {
-            yield Json::decode( $stLine );
-        }
+        $input = new StringInput( $i_stJsonLines );
+        yield from $input->stream();
     }
 
 
@@ -53,40 +44,31 @@ final class JsonLines {
     }
 
 
-    public static function fromFile( string $i_stFileName ) : \Generator {
+    public static function fromFile( string $i_stFileName, int $i_uOffset = 0,
+                                     int    $i_uLimit = PHP_INT_MAX ) : \Generator {
         $stream = @fopen( $i_stFileName, 'r' );
-        if ( $stream === false ) {
+        if ( ! is_resource( $stream ) ) {
             throw new \RuntimeException( "Failed to open file: {$i_stFileName}" );
         }
-        yield from self::fromStream( $stream );
+        yield from self::fromStream( $stream, $i_uOffset, $i_uLimit );
     }
 
 
-    public static function fromStream( $i_stream ) : \Generator {
-        while ( true ) {
-            $x = self::fromStreamOnce( $i_stream );
-            if ( Result::EOF === $x ) {
+    public static function fromStream( $i_stream, int $i_uOffset = 0,
+                                       int $i_uLimit = PHP_INT_MAX ) : \Generator {
+        $input = new StreamInput( $i_stream );
+        for ( $ii = 0 ; $ii < $i_uOffset ; $ii++ ) {
+            $input->next();
+        }
+        $uCount = 0;
+        foreach ( $input->stream() as $x ) {
+            if ( $uCount >= $i_uLimit ) {
                 break;
             }
-            if ( Result::NOTHING === $x ) {
-                continue;
-            }
             yield $x;
+            $uCount++;
         }
         fclose( $i_stream );
-    }
-
-
-    public static function fromStreamOnce( $i_stream ) : int|float|bool|string|array|null|Result {
-        $stLine = fgets( $i_stream );
-        if ( $stLine === false ) {
-            return Result::EOF;
-        }
-        $stLine = trim( $stLine );
-        if ( $stLine === '' ) {
-            return Result::NOTHING;
-        }
-        return Json::decode( $stLine );
     }
 
 

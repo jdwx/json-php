@@ -44,6 +44,7 @@ final class JsonLinesTest extends TestCase {
     }
 
 
+    /*
     public function testFromFile() : void {
         $stFileName = __DIR__ . '/data/test.jsonl';
         $gen = JsonLines::fromFile( $stFileName );
@@ -74,6 +75,109 @@ final class JsonLinesTest extends TestCase {
         $gen = JsonLines::fromFile( '/no/such/file' );
         self::expectException( RuntimeException::class );
         $gen->current();
+    }
+    */
+
+
+    public function testFromFile() : void {
+        $gen = JsonLines::fromFile( __DIR__ . '/data/test2.jsonl' );
+
+        self::assertSame( 'foo', $gen->current() );
+        $gen->next();
+        self::assertSame( 'bar', $gen->current() );
+        $gen->next();
+        self::assertSame( 'baz', $gen->current() );
+        $gen->next();
+        self::assertSame( 'qux', $gen->current() );
+
+    }
+
+
+    public function testFromFileForNoSuchFile() : void {
+        $gen = JsonLines::fromFile( '/no/such/file' );
+        self::expectException( RuntimeException::class );
+        $gen->current();
+    }
+
+
+    public function testFromFileForOffsetAndLimit() : void {
+        $gen = JsonLines::fromFile( __DIR__ . '/data/test2.jsonl', 3, 2 );
+
+        self::assertSame( 'qux', $gen->current() );
+        $gen->next();
+        self::assertSame( 'quux', $gen->current() );
+        $gen->next();
+        self::assertFalse( $gen->valid() );
+    }
+
+
+    public function testFromStream() : void {
+        # Add an extra newline to test blank skipping.
+        $st = "{\"foo\": \"bar\"}\n\n{\"baz\": \"qux\"}\n";
+        $stream = $this->createStream( $st );
+
+        $gen = JsonLines::fromStream( $stream );
+
+        $r = $gen->current();
+        self::assertSame( 'bar', $r[ 'foo' ] );
+        $gen->next();
+
+        $r = $gen->current();
+        self::assertSame( 'qux', $r[ 'baz' ] );
+        $gen->next();
+
+        self::assertNull( $gen->current() );
+    }
+
+
+    public function testFromStreamForOffsetAndLimit() : void {
+        $st = "{\"foo\": \"bar\"}\n\n{\"baz\": \"qux\"}\n{\"quux\":\"corge\"}\n";
+        $stream = $this->createStream( $st );
+
+        $gen = JsonLines::fromStream( $stream, 1, 2 );
+
+        # Test offset 1-2.
+        $r = $gen->current();
+        self::assertSame( 'qux', $r[ 'baz' ] );
+        $gen->next();
+
+        $r = $gen->current();
+        self::assertSame( 'corge', $r[ 'quux' ] );
+        $gen->next();
+
+        self::assertNull( $gen->current() );
+
+        # Test offset 0-1.
+        $stream = $this->createStream( $st );
+        $gen = JsonLines::fromStream( $stream, 0, 2 );
+
+        $r = $gen->current();
+        self::assertSame( 'bar', $r[ 'foo' ] );
+        $gen->next();
+
+        $r = $gen->current();
+        self::assertSame( 'qux', $r[ 'baz' ] );
+        $gen->next();
+
+        self::assertNull( $gen->current() );
+
+        # Test offset 1-1.
+        $stream = $this->createStream( $st );
+
+        $gen = JsonLines::fromStream( $stream, 1, 1 );
+        $r = $gen->current();
+        self::assertSame( 'qux', $r[ 'baz' ] );
+        $gen->next();
+        self::assertNull( $gen->current() );
+
+    }
+
+
+    private function createStream( string $i_st ) {
+        $stream = fopen( 'php://memory', 'r+' );
+        fwrite( $stream, $i_st );
+        rewind( $stream );
+        return $stream;
     }
 
 
