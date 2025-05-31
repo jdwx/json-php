@@ -4,8 +4,13 @@
 declare( strict_types = 1 );
 
 
+namespace JDWX\Json\Tests;
+
+
+use InvalidArgumentException;
 use JDWX\Json\Lex\Result;
 use JDWX\Json\Streaming\StringInput;
+use JsonException;
 use PHPUnit\Framework\TestCase;
 
 

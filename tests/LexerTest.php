@@ -4,6 +4,9 @@
 declare( strict_types = 1 );
 
 
+namespace JDWX\Json\Tests;
+
+
 use JDWX\Json\Lex\Lexer;
 use JDWX\Json\Lex\Result;
 use PHPUnit\Framework\TestCase;

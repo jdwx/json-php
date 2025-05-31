@@ -4,8 +4,12 @@
 declare( strict_types = 1 );
 
 
+namespace JDWX\Json\Tests;
+
+
 use JDWX\Json\JsonLines;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 
 final class JsonLinesTest extends TestCase {

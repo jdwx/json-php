@@ -4,6 +4,9 @@
 declare( strict_types = 1 );
 
 
+namespace JDWX\Json\Tests;
+
+
 use JDWX\Json\Lex\Result;
 use JDWX\Json\Streaming\FileInput;
 use PHPUnit\Framework\TestCase;

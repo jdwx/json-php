@@ -4,7 +4,11 @@
 declare( strict_types = 1 );
 
 
+namespace JDWX\Json\Tests;
+
+
 use JDWX\Json\Json;
+use JsonException;
 use PHPUnit\Framework\TestCase;
 
 
