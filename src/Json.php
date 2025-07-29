@@ -120,8 +120,8 @@ class Json {
     }
 
 
-    public static function encodePretty( mixed $i_x ) : string {
-        return json_encode( $i_x, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, self::$uDepth );
+    public static function encodePretty( mixed $i_x, int $flags = 0 ) : string {
+        return self::encode( $i_x, $flags | JSON_PRETTY_PRINT );
     }
 
 
