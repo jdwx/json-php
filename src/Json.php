@@ -111,11 +111,12 @@ class Json {
      * Encode an arbitrary value as JSON.
      *
      * @param mixed $i_x
+     * @param int $flags
      * @return string
      * @throws JsonException
      */
-    public static function encode( mixed $i_x ) : string {
-        return json_encode( $i_x, JSON_THROW_ON_ERROR, self::$uDepth );
+    public static function encode( mixed $i_x, int $flags = 0 ) : string {
+        return json_encode( $i_x, $flags | JSON_THROW_ON_ERROR, self::$uDepth );
     }
 
 

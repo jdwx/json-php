@@ -15,22 +15,22 @@ use PHPUnit\Framework\TestCase;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 
-class JsonTest extends TestCase {
+final class JsonTest extends TestCase {
 
 
     public function testDecode() : void {
         $stJson = '{"a":1,"b":2}';
         $decode = Json::decode( $stJson );
-        static::assertSame( [ 'a' => 1, 'b' => 2 ], $decode );
+        self::assertSame( [ 'a' => 1, 'b' => 2 ], $decode );
 
         $stJson = 'null';
-        static::assertNull( Json::decode( $stJson ) );
+        self::assertNull( Json::decode( $stJson ) );
 
         $stJson = '5';
-        static::assertSame( 5, Json::decode( $stJson ) );
+        self::assertSame( 5, Json::decode( $stJson ) );
 
         $stJson = '////nope///';
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::decode( $stJson );
     }
 
@@ -38,14 +38,14 @@ class JsonTest extends TestCase {
     public function testDecodeArray() : void {
         $stJson = '[1,2]';
         $rDecode = Json::decodeArray( $stJson );
-        static::assertSame( [ 1, 2 ], $rDecode );
+        self::assertSame( [ 1, 2 ], $rDecode );
 
         $stJson = '{"a":1,"b":2}';
         $rDecode = Json::decodeArray( $stJson );
-        static::assertSame( [ 'a' => 1, 'b' => 2 ], $rDecode );
+        self::assertSame( [ 'a' => 1, 'b' => 2 ], $rDecode );
 
         $stJson = 'null';
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::decodeArray( $stJson );
     }
 
@@ -53,10 +53,10 @@ class JsonTest extends TestCase {
     public function testDecodeDict() : void {
         $stJson = '{"a":1,"b":2}';
         $rDecode = Json::decodeDict( $stJson );
-        static::assertSame( [ 'a' => 1, 'b' => 2 ], $rDecode );
+        self::assertSame( [ 'a' => 1, 'b' => 2 ], $rDecode );
 
         $stJson = '[1,2]';
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::decodeDict( $stJson );
     }
 
@@ -64,13 +64,13 @@ class JsonTest extends TestCase {
     public function testDecodeDictEmpty() : void {
         $stJson = '{}';
         $rDecode = Json::decodeDict( $stJson );
-        static::assertSame( [], $rDecode );
+        self::assertSame( [], $rDecode );
     }
 
 
     public function testDecodeDictWithInt() : void {
         $stJson = '5';
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::decodeDict( $stJson );
     }
 
@@ -78,10 +78,10 @@ class JsonTest extends TestCase {
     public function testDecodeList() : void {
         $stJson = '[1,2]';
         $rDecode = Json::decodeList( $stJson );
-        static::assertSame( [ 1, 2 ], $rDecode );
+        self::assertSame( [ 1, 2 ], $rDecode );
 
         $stJson = '{"a":1,"b":2}';
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::decodeList( $stJson );
     }
 
@@ -89,13 +89,13 @@ class JsonTest extends TestCase {
     public function testDecodeListEmpty() : void {
         $stJson = '[]';
         $rDecode = Json::decodeList( $stJson );
-        static::assertSame( [], $rDecode );
+        self::assertSame( [], $rDecode );
     }
 
 
     public function testDecodeListWithInt() : void {
         $stJson = '5';
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::decodeList( $stJson );
     }
 
@@ -103,14 +103,14 @@ class JsonTest extends TestCase {
     public function testDecodeScalar() : void {
         $stJson = '5';
         $rDecode = Json::decodeScalar( $stJson );
-        static::assertSame( 5, $rDecode );
+        self::assertSame( 5, $rDecode );
 
         $stJson = 'true';
         $rDecode = Json::decodeScalar( $stJson );
-        static::assertTrue( $rDecode );
+        self::assertTrue( $rDecode );
 
         $stJson = '{"a":1,"b":2}';
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::decodeScalar( $stJson );
     }
 
@@ -118,11 +118,12 @@ class JsonTest extends TestCase {
     public function testDecodeStringMap() : void {
         $stJson = '{"a":"1","b":"2"}';
         $rDecode = Json::decodeStringMap( $stJson );
-        static::assertSame( [ 'a' => '1', 'b' => '2' ], $rDecode );
+        self::assertSame( [ 'a' => '1', 'b' => '2' ], $rDecode );
 
         $stJson = '{"a":1,"b":2}';
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         $r = Json::decodeStringMap( $stJson );
+        /** @noinspection ForgottenDebugOutputInspection */
         var_dump( $r );
     }
 
@@ -130,13 +131,13 @@ class JsonTest extends TestCase {
     public function testDecodeStringMapEmpty() : void {
         $stJson = '{}';
         $rDecode = Json::decodeStringMap( $stJson );
-        static::assertSame( [], $rDecode );
+        self::assertSame( [], $rDecode );
     }
 
 
     public function testDecodeStringMapWithInt() : void {
         $stJson = '5';
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::decodeStringMap( $stJson );
     }
 
@@ -144,24 +145,31 @@ class JsonTest extends TestCase {
     public function testDecodeStringable() : void {
         $stJson = '5';
         $rDecode = Json::decodeStringable( $stJson );
-        static::assertSame( 5, $rDecode );
+        self::assertSame( 5, $rDecode );
 
         $stJson = 'true';
         $rDecode = Json::decodeStringable( $stJson );
-        static::assertTrue( $rDecode );
+        self::assertTrue( $rDecode );
 
         $stJson = '{"a":1,"b":2}';
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::decodeStringable( $stJson );
     }
 
 
     public function testEncode() : void {
-        static::assertSame( '{"a":1,"b":2}', Json::encode( [ 'a' => 1, 'b' => 2 ] ) );
-        static::assertSame( 'null', Json::encode( null ) );
-        $x = fopen( 'php://memory', 'w' );
-        self::expectException( JsonException::class );
+        self::assertSame( '{"a":1,"b":2}', Json::encode( [ 'a' => 1, 'b' => 2 ] ) );
+        self::assertSame( 'null', Json::encode( null ) );
+        $x = fopen( 'php://memory', 'wb' );
+        $this->expectException( JsonException::class );
         Json::encode( $x );
+    }
+
+
+    public function testEncodeForFlags() : void {
+        $st = '😀';
+        self::assertSame( '"\ud83d\ude00"', Json::encode( $st ) );
+        self::assertSame( '"😀"', Json::encode( $st, JSON_UNESCAPED_UNICODE ) );
     }
 
 
@@ -176,57 +184,57 @@ class JsonTest extends TestCase {
         ];
         $stJson = Json::encodePretty( $r );
         $r2 = Json::decode( $stJson );
-        static::assertSame( $r, $r2 );
+        self::assertSame( $r, $r2 );
     }
 
 
     public function testExpectArray() : void {
-        static::assertSame( [ 1, 2 ], Json::expectArray( [ 1, 2 ] ) );
-        self::expectException( JsonException::class );
+        self::assertSame( [ 1, 2 ], Json::expectArray( [ 1, 2 ] ) );
+        $this->expectException( JsonException::class );
         Json::expectArray( 5 );
     }
 
 
     public function testExpectBoolean() : void {
-        static::assertTrue( Json::expectBoolean( true ) );
-        static::assertFalse( Json::expectBoolean( false ) );
-        self::expectException( JsonException::class );
+        self::assertTrue( Json::expectBoolean( true ) );
+        self::assertFalse( Json::expectBoolean( false ) );
+        $this->expectException( JsonException::class );
         Json::expectBoolean( 5 );
     }
 
 
     public function testExpectDict() : void {
-        static::assertSame( [ 'a' => 1, 'b' => 2 ], Json::expectDict( [ 'a' => 1, 'b' => 2 ] ) );
-        self::expectException( JsonException::class );
+        self::assertSame( [ 'a' => 1, 'b' => 2 ], Json::expectDict( [ 'a' => 1, 'b' => 2 ] ) );
+        $this->expectException( JsonException::class );
         Json::expectDict( 5 );
     }
 
 
     public function testExpectScalar() : void {
-        static::assertSame( 5, Json::expectScalar( 5 ) );
-        static::assertSame( 5.5, Json::expectScalar( 5.5 ) );
-        static::assertTrue( Json::expectScalar( true ) );
-        static::assertFalse( Json::expectScalar( false ) );
-        static::assertSame( 'foo', Json::expectScalar( 'foo' ) );
-        self::expectException( JsonException::class );
+        self::assertSame( 5, Json::expectScalar( 5 ) );
+        self::assertSame( 5.5, Json::expectScalar( 5.5 ) );
+        self::assertTrue( Json::expectScalar( true ) );
+        self::assertFalse( Json::expectScalar( false ) );
+        self::assertSame( 'foo', Json::expectScalar( 'foo' ) );
+        $this->expectException( JsonException::class );
         Json::expectScalar( null );
     }
 
 
     public function testExpectScalarWithArray() : void {
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::expectScalar( [ 'foo' => 'bar' ] );
     }
 
 
     public function testExpectStringable() : void {
-        static::assertSame( 5, Json::expectStringable( 5 ) );
-        static::assertSame( 5.5, Json::expectStringable( 5.5 ) );
-        static::assertTrue( Json::expectStringable( true ) );
-        static::assertFalse( Json::expectStringable( false ) );
-        static::assertSame( 'foo', Json::expectStringable( 'foo' ) );
-        static::assertNull( Json::expectStringable( null ) );
-        self::expectException( JsonException::class );
+        self::assertSame( 5, Json::expectStringable( 5 ) );
+        self::assertSame( 5.5, Json::expectStringable( 5.5 ) );
+        self::assertTrue( Json::expectStringable( true ) );
+        self::assertFalse( Json::expectStringable( false ) );
+        self::assertSame( 'foo', Json::expectStringable( 'foo' ) );
+        self::assertNull( Json::expectStringable( null ) );
+        $this->expectException( JsonException::class );
         Json::expectStringable( [ 'foo' => 'bar' ] );
     }
 
@@ -236,10 +244,10 @@ class JsonTest extends TestCase {
         $stFilename = tempnam( sys_get_temp_dir(), 'jdwx_json-api-client' );
         file_put_contents( $stFilename, $stJson );
         $rDecode = Json::fromFile( $stFilename );
-        static::assertSame( [ 'a' => 1, 'b' => 2 ], $rDecode );
+        self::assertSame( [ 'a' => 1, 'b' => 2 ], $rDecode );
         unlink( $stFilename );
 
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::fromFile( $stFilename );
 
     }
@@ -248,11 +256,11 @@ class JsonTest extends TestCase {
     public function testGet() : void {
         $stJson = '{"a":1,"b":"foo"}';
         $r = Json::decode( $stJson );
-        static::assertSame( 1, Json::get( $r, 'a' ) );
-        static::assertSame( 'foo', Json::get( $r, 'b' ) );
-        static::assertSame( null, Json::get( $r, 'c', i_bNullOK: true ) );
-        static::assertSame( 5, Json::get( $r, 'c', 5 ) );
-        static::expectException( JsonException::class );
+        self::assertSame( 1, Json::get( $r, 'a' ) );
+        self::assertSame( 'foo', Json::get( $r, 'b' ) );
+        self::assertNull( Json::get( $r, 'c', i_bNullOK: true ) );
+        self::assertSame( 5, Json::get( $r, 'c', 5 ) );
+        $this->expectException( JsonException::class );
         Json::get( $r, 'c' );
     }
 
@@ -260,9 +268,9 @@ class JsonTest extends TestCase {
     public function testGetArray() : void {
         $stJson = '{"a":[1,2], "b":"foo"}';
         $r = Json::decode( $stJson );
-        static::assertSame( [ 1, 2 ], Json::getArray( $r, 'a' ) );
-        static::assertSame( [], Json::getArray( $r, 'c', [] ) );
-        static::expectException( JsonException::class );
+        self::assertSame( [ 1, 2 ], Json::getArray( $r, 'a' ) );
+        self::assertSame( [], Json::getArray( $r, 'c', [] ) );
+        $this->expectException( JsonException::class );
         Json::getArray( $r, 'b' );
     }
 
@@ -270,7 +278,7 @@ class JsonTest extends TestCase {
     public function testGetArrayWithMissingKey() : void {
         $stJson = '{"a":[1,2]}';
         $r = Json::decode( $stJson );
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::getArray( $r, 'b' );
     }
 
@@ -278,11 +286,11 @@ class JsonTest extends TestCase {
     public function testGetBoolean() : void {
         $stJson = '{"a":true,"b":false,"c":"foo"}';
         $r = Json::decode( $stJson );
-        static::assertTrue( Json::getBoolean( $r, 'a' ) );
-        static::assertFalse( Json::getBoolean( $r, 'b' ) );
-        static::assertTrue( Json::getBoolean( $r, 'd', true ) );
-        static::assertFalse( Json::getBoolean( $r, 'd', false ) );
-        static::expectException( JsonException::class );
+        self::assertTrue( Json::getBoolean( $r, 'a' ) );
+        self::assertFalse( Json::getBoolean( $r, 'b' ) );
+        self::assertTrue( Json::getBoolean( $r, 'd', true ) );
+        self::assertFalse( Json::getBoolean( $r, 'd', false ) );
+        $this->expectException( JsonException::class );
         Json::getBoolean( $r, 'c' );
     }
 
@@ -290,7 +298,7 @@ class JsonTest extends TestCase {
     public function testGetBooleanWithMissingKey() : void {
         $stJson = '{"a":true}';
         $r = Json::decode( $stJson );
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::getBoolean( $r, 'b' );
     }
 
@@ -299,8 +307,8 @@ class JsonTest extends TestCase {
         $stJson = '{"a":null, "b":5}';
         $r = Json::decode( $stJson );
         /** @phpstan-ignore-next-line */
-        static::assertNull( Json::getNull( $r, 'a' ) );
-        static::expectException( JsonException::class );
+        self::assertNull( Json::getNull( $r, 'a' ) );
+        $this->expectException( JsonException::class );
         Json::getNull( $r, 'b' );
     }
 
@@ -308,7 +316,7 @@ class JsonTest extends TestCase {
     public function testGetNullWithMissingKey() : void {
         $stJson = '{"a":null}';
         $r = Json::decode( $stJson );
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::getNull( $r, 'b' );
     }
 
@@ -316,9 +324,9 @@ class JsonTest extends TestCase {
     public function testGetNumber() : void {
         $stJson = '{"a":1,"b":"foo"}';
         $r = Json::decode( $stJson );
-        static::assertSame( 1, Json::getNumber( $r, 'a' ) );
-        static::assertSame( 5, Json::getNumber( $r, 'c', 5 ) );
-        static::expectException( JsonException::class );
+        self::assertSame( 1, Json::getNumber( $r, 'a' ) );
+        self::assertSame( 5, Json::getNumber( $r, 'c', 5 ) );
+        $this->expectException( JsonException::class );
         Json::getNumber( $r, 'b' );
     }
 
@@ -326,9 +334,9 @@ class JsonTest extends TestCase {
     public function testGetString() : void {
         $stJson = '{"a":"foo","b":5}';
         $r = Json::decode( $stJson );
-        static::assertSame( 'foo', Json::getString( $r, 'a' ) );
-        static::assertSame( 'bar', Json::getString( $r, 'c', 'bar' ) );
-        static::expectException( JsonException::class );
+        self::assertSame( 'foo', Json::getString( $r, 'a' ) );
+        self::assertSame( 'bar', Json::getString( $r, 'c', 'bar' ) );
+        $this->expectException( JsonException::class );
         Json::getString( $r, 'b' );
     }
 
@@ -336,19 +344,19 @@ class JsonTest extends TestCase {
     public function testGetWithMissingKey() : void {
         $stJson = '{"a":1}';
         $r = Json::decode( $stJson );
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::get( $r, 'b' );
     }
 
 
     public function testSafeString() : void {
-        static::assertSame( 'true', Json::safeString( true ) );
-        static::assertSame( 'false', Json::safeString( false ) );
-        static::assertSame( 'null', Json::safeString( null ) );
-        static::assertSame( '5', Json::safeString( 5 ) );
-        static::assertSame( '5.5', Json::safeString( 5.5 ) );
-        static::assertSame( 'foo', Json::safeString( 'foo' ) );
-        static::assertSame( '{"a":1,"b":2}', Json::safeString( [ 'a' => 1, 'b' => 2 ] ) );
+        self::assertSame( 'true', Json::safeString( true ) );
+        self::assertSame( 'false', Json::safeString( false ) );
+        self::assertSame( 'null', Json::safeString( null ) );
+        self::assertSame( '5', Json::safeString( 5 ) );
+        self::assertSame( '5.5', Json::safeString( 5.5 ) );
+        self::assertSame( 'foo', Json::safeString( 'foo' ) );
+        self::assertSame( '{"a":1,"b":2}', Json::safeString( [ 'a' => 1, 'b' => 2 ] ) );
     }
 
 
@@ -358,17 +366,17 @@ class JsonTest extends TestCase {
         Json::toFile( $stFilename, $r );
 
         $r2 = Json::fromFile( $stFilename );
-        static::assertSame( $r, $r2 );
+        self::assertSame( $r, $r2 );
         unlink( $stFilename );
 
-        self::expectException( JsonException::class );
-        Json::toFile( $stFilename, fopen( 'php://memory', 'w' ) );
+        $this->expectException( JsonException::class );
+        Json::toFile( $stFilename, fopen( 'php://memory', 'wb' ) );
     }
 
 
     public function testToFileForDirectory() : void {
         $stFilename = sys_get_temp_dir();
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         Json::toFile( $stFilename, [ 'a' => 1, 'b' => 2 ] );
     }
 
