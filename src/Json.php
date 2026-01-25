@@ -280,10 +280,11 @@ class Json {
     /**
      * @param string $i_stFileName
      * @param mixed $i_x
+     * @param int $i_flags
      * @throws JsonException
      */
-    public static function toFile( string $i_stFileName, mixed $i_x ) : void {
-        $st = self::encode( $i_x );
+    public static function toFile( string $i_stFileName, mixed $i_x, int $i_flags = 0 ) : void {
+        $st = self::encode( $i_x, $i_flags );
         set_error_handler( null );
         /** @noinspection PhpUsageOfSilenceOperatorInspection */
         $bi = @file_put_contents( $i_stFileName, $st );
