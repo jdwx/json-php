@@ -114,6 +114,7 @@ class Json {
      * @param int $flags
      * @return string
      * @throws JsonException
+     * @suppress PhanPossiblyFalseTypeReturn Doesn't detect that throwing prevents a false response.
      */
     public static function encode( mixed $i_x, int $flags = 0 ) : string {
         return json_encode( $i_x, $flags | JSON_THROW_ON_ERROR, self::$uDepth );
@@ -292,6 +293,14 @@ class Json {
         if ( $bi === false ) {
             throw new JsonException( "Failed to write: {$i_stFileName}" );
         }
+    }
+
+
+    public static function tryFromFile( string $i_stFilename ) : ?array {
+        if ( ! file_exists( $i_stFilename ) ) {
+            return null;
+        }
+        return self::fromFile( $i_stFilename );
     }
 
 

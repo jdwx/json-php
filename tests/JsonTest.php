@@ -242,6 +242,7 @@ final class JsonTest extends TestCase {
     public function testFromFile() : void {
         $stJson = '{"a":1,"b":2}';
         $stFilename = tempnam( sys_get_temp_dir(), 'jdwx_json-api-client' );
+        assert( is_string( $stFilename ) );
         file_put_contents( $stFilename, $stJson );
         $rDecode = Json::fromFile( $stFilename );
         self::assertSame( [ 'a' => 1, 'b' => 2 ], $rDecode );
@@ -363,6 +364,7 @@ final class JsonTest extends TestCase {
     public function testToFile() : void {
         $r = [ 'a' => 1, 'b' => 2 ];
         $stFilename = tempnam( sys_get_temp_dir(), 'jdwx_json-api-client' );
+        assert( is_string( $stFilename ) );
         Json::toFile( $stFilename, $r );
 
         $r2 = Json::fromFile( $stFilename );
@@ -378,6 +380,18 @@ final class JsonTest extends TestCase {
         $stFilename = sys_get_temp_dir();
         $this->expectException( JsonException::class );
         Json::toFile( $stFilename, [ 'a' => 1, 'b' => 2 ] );
+    }
+
+
+    public function testTryFromFile() : void {
+        $stJson = '{"a":1,"b":2}';
+        $stFilename = tempnam( sys_get_temp_dir(), 'jdwx_json-api-client' );
+        assert( is_string( $stFilename ) );
+        file_put_contents( $stFilename, $stJson );
+        $rDecode = Json::tryFromFile( $stFilename );
+        self::assertSame( [ 'a' => 1, 'b' => 2 ], $rDecode );
+        unlink( $stFilename );
+        self::assertNull( Json::tryFromFile( $stFilename ) );
     }
 
 
