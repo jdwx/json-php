@@ -32,6 +32,7 @@ final class StringInputTest extends TestCase {
 
     public function testNext() : void {
         $st = file_get_contents( __DIR__ . '/data/test.jsonl' );
+        assert( is_string( $st ) );
         $input = new StringInput( $st );
 
         $rResult = [ 'foo' => 'bar', 'baz' => 5 ];
@@ -55,6 +56,7 @@ final class StringInputTest extends TestCase {
 
     public function testNextForInvalidSkipOuter() : void {
         $st = file_get_contents( __DIR__ . '/data/test.jsonl' );
+        assert( is_string( $st ) );
         $input = new StringInput( $st, true );
 
         $this->expectException( JsonException::class );
@@ -76,6 +78,7 @@ final class StringInputTest extends TestCase {
             [ 'corge' => [ 'grault' => 'garply', 'waldo' => "fred\nplugh" ] ],
         ];
         $st = file_get_contents( __DIR__ . '/data/test.jsonl' );
+        assert( is_string( $st ) );
         $input = new StringInput( $st );
 
         foreach ( $input->stream() as $result ) {
@@ -89,7 +92,7 @@ final class StringInputTest extends TestCase {
         $gen = $input->stream();
         $gen->next();
         self::assertSame( 1, $gen->current() );
-        self::expectException( JsonException::class );
+        $this->expectException( JsonException::class );
         $gen->next();
     }
 

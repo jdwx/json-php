@@ -55,6 +55,13 @@ final class JsonLines {
     }
 
 
+    /**
+     * @param resource $i_stream
+     * @param int $i_uOffset
+     * @param int $i_uLimit
+     * @return \Generator
+     * @throws \JsonException
+     */
     public static function fromStream( $i_stream, int $i_uOffset = 0,
                                        int $i_uLimit = PHP_INT_MAX ) : \Generator {
         $input = new StreamInput( $i_stream );

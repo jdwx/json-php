@@ -99,7 +99,7 @@ final class JsonLinesTest extends TestCase {
 
     public function testFromFileForNoSuchFile() : void {
         $gen = JsonLines::fromFile( '/no/such/file' );
-        self::expectException( RuntimeException::class );
+        $this->expectException( RuntimeException::class );
         $gen->current();
     }
 
@@ -178,7 +178,8 @@ final class JsonLinesTest extends TestCase {
 
 
     private function createStream( string $i_st ) {
-        $stream = fopen( 'php://memory', 'r+' );
+        $stream = fopen( 'php://memory', 'rb+' );
+        assert( is_resource( $stream ) );
         fwrite( $stream, $i_st );
         rewind( $stream );
         return $stream;

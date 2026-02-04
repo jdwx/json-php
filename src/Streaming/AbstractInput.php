@@ -61,6 +61,7 @@ abstract class AbstractInput {
                 $this->fill();
             }
             $uPos = strpos( $this->stBuffer, '[' );
+            assert( is_int( $uPos ) );
             $this->stBuffer = substr( $this->stBuffer, $uPos + 1 );
             $this->bOuterArraySkipped = true;
         }

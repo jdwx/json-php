@@ -17,6 +17,13 @@ class StreamInput extends AbstractInput {
     private $stream;
 
 
+    /**
+     * @param resource $i_stream
+     * @param bool $i_bSkipOuterArray
+     * @param int $i_uBufferSize
+     * @param int $i_uMaxReadSize
+     * @param string|null $i_elementDelimiters
+     */
     public function __construct( $i_stream, bool $i_bSkipOuterArray = false,
                                  int $i_uBufferSize = self::DEFAULT_BUFFER_SIZE,
                                  int $i_uMaxReadSize = self::DEFAULT_MAX_READ_SIZE,

@@ -181,7 +181,9 @@ final class LexerTest extends TestCase {
 
 
     public function testElementForJsonLines() : void {
-        $st = trim( file_get_contents( __DIR__ . '/data/test.jsonl' ) );
+        $st = file_get_contents( __DIR__ . '/data/test.jsonl' );
+        assert( is_string( $st ) );
+        $st = trim( $st );
         $lex = new Lexer();
         $stResult = '{"foo": "bar", "baz": 5}';
         self::assertSame( $stResult, $lex->element( $st, true, true ) );
@@ -257,7 +259,9 @@ final class LexerTest extends TestCase {
 
 
     public function testLexForJsonLines() : void {
-        $st = trim( file_get_contents( __DIR__ . '/data/test.jsonl' ) );
+        $st = file_get_contents( __DIR__ . '/data/test.jsonl' );
+        assert( is_string( $st ) );
+        $st = trim( $st );
         $lex = new Lexer();
         $gen = $lex->lex( $st, true, true );
 
@@ -275,7 +279,7 @@ final class LexerTest extends TestCase {
 
 
     /**
-     * null() and false() are both covers for the same underlying function.
+     * Both null() and false() are covers for the same underlying function.
      * We do the thorough tests in false() and just a quick check here.
      */
     public function testNull() : void {
@@ -459,7 +463,7 @@ final class LexerTest extends TestCase {
 
 
     /**
-     * true() and false() are both covers for the same underlying function.
+     * Both true() and false() are covers for the same underlying function.
      * We do the thorough tests in false() and just a quick check here.
      */
     public function testTrue() : void {
